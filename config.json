@@ -1,0 +1,5 @@
+{
+    "KEY": "drsudo",
+    "EXPIRY_DATE": "2025-12-31",
+    "INSTAGRAM_HMAC_SECRET": "some_secret_key"
+}

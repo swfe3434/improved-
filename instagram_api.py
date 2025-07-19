@@ -7,7 +7,7 @@ import hashlib
 from random import choice, uniform
 from rich.console import Console
 
-from report_deobfuscated import handle_rate_limiting, generate_encrypted_password, generate_hmac_signature
+from utils import handle_rate_limiting, generate_encrypted_password, generate_hmac_signature
 
 console = Console()
 

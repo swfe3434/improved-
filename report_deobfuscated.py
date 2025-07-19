@@ -19,7 +19,6 @@ from rich.text import Text
 from functools import wraps
 
 # Constants
-ENCRYPTION_KEY_URL = "https://firebasestorage.googleapis.com/v0/b/rehan-says.appspot.com/o/to.json?alt=media&token=4318a4d3-1d59-4359-b1ae-8c68c9918a12"
 LOG_FILE = "report_bot.log"
 SESSION_FILE = "session.json"
 PASSWORD_PROMPT = "[bold green]Enter the password to continue: [/bold green]"
@@ -102,23 +101,13 @@ def retry_on_failure(max_retries=3):
     return decorator
 
 
-@retry_on_failure(max_retries=3)
-def get_encrypted_config(url):
-    """Fetch and decrypt the remote configuration."""
-    response = requests.get(url)
-    if response.status_code == 200:
-        encrypted_data = response.text.strip().encode()
-        fernet = Fernet(ENCRYPTION_KEY.encode())
-        decrypted_data = fernet.decrypt(encrypted_data).decode()
-        config = {}
-        for line in decrypted_data.splitlines():
-            if "=" in line:
-                key, value = line.split("=", 1)
-                config[key.strip()] = value.strip()
-        return config
-    else:
-        console.print(f"[red]Failed to fetch encrypted config. Status code: {response.status_code}[/red]")
-        exit_process()
+def get_local_config():
+    """Return a local configuration."""
+    return {
+        "ENCRYPTION_KEY": Fernet.generate_key().decode(),
+        "EXPIRY_DATE": "2026-07-19",
+        "PASSWORD": "password",
+    }
 
 def sha256_hash(text):
     """Return the SHA256 hash of a given text."""
@@ -440,7 +429,7 @@ def battle_arc_mode(api, targets, reason, num_reports):
 
 if __name__ == "__main__":
     display_banner()
-    CONFIG = get_encrypted_config(ENCRYPTION_KEY_URL)
+    CONFIG = get_local_config()
     ENCRYPTION_KEY = CONFIG.get("ENCRYPTION_KEY")
     EXPIRY_DATE = datetime.datetime.strptime(CONFIG.get("EXPIRY_DATE"), "%Y-%m-%d")
     main_menu()

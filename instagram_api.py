@@ -17,8 +17,6 @@ class InstagramAPI:
     def login(self):
         try:
             self.client.login(self.username, self.password, relogin=True)
-            self.session_id = self.client.sessionid
-            self.csrf_token = self.client.csrftoken
             return True
         except ChallengeRequired:
             console.print("[red]Challenge required. Please log in to your Instagram account in a browser to resolve the challenge.[/red]")
@@ -28,22 +26,10 @@ class InstagramAPI:
             return False
 
     def report_user(self, user_id, reason_id):
-        headers = {
-            "User-Agent": choice(self.client.USER_AGENTS),
-            "Referer": "https://www.instagram.com/",
-            "Cookie": f"sessionid={self.session_id}; csrftoken={self.csrf_token}",
-            "X-CSRFToken": self.csrf_token,
-            "X-IG-App-ID": "936619743392459"
-        }
         try:
-            response = requests.post(f"https://i.instagram.com/users/{user_id}/flag/", headers=headers, data=f"source_name=&reason_id={reason_id}&frx_context=", allow_redirects=False)
-            if response.status_code == 200:
-                return True
-            else:
-                console.print(f"[red]Failed to report user. Status code: {response.status_code}[/red]")
-                return False
-        except requests.exceptions.RequestException as e:
-            console.print(f"[red]Network error while reporting user: {e}[/red]")
+            return self.client.user_report(user_id, reason_id)
+        except Exception as e:
+            console.print(f"[red]Failed to report user: {e}[/red]")
             return False
 
     def get_user_id(self, username):
